@@ -1,8 +1,11 @@
 Qualtrics.SurveyEngine.addOnload(function() {
   var random_result = sessionStorage.random_result.split(',');
-    
+
   function fill_table(number) {
-    
+
+    var set1 = [];
+    var set2 = [];
+
     var table_element = document.getElementById("conjoint_table_" + number);
     
     var label = "Rd_" + (number) + "_";
@@ -22,10 +25,41 @@ Qualtrics.SurveyEngine.addOnload(function() {
           for (var x = 0; x < values_array[random_value].length; x++) {
             random_values_array.push(x);
           }
+
+
+          // If Christian exclude the first value of tribe. Note that this
+          // depends on religion being the first category and tribe being the third.
+          if (i == 2){
+            if (j == 1) {
+              if (set1.indexOf("Christian") != -1) {
+                random_values_array = [];
+                for (x = 1; x < values_array[random_value].length; x++) {
+                  random_values_array.push(x);
+                }
+              }
+            }
+            if (j == 2) {
+              if (set2.indexOf("Christian") != -1) {
+				random_values_array = [];
+                for (x = 1; x < values_array[random_value].length; x++) {
+                  random_values_array.push(x);
+                }
+              }
+            }
+          }
+
           var random_index = shuffle(random_values_array);
           var value = values_array[random_value];
           var text = document.createTextNode(value[random_index[0]]);
-          
+
+          // Keep track of previous values for A (set1) and B (set2) so we can exclude choices
+          // depending on previous selections.
+		      if (j === 1) {
+            set1.push(value[random_index[0]]);
+          }
+		      if (j === 2) {
+            set2.push(value[random_index[0]]);
+          }
           // If you want to use different choice names in your embedded data, change the values below
           if (j === 1) {
             var choice = "A";
@@ -44,7 +78,7 @@ Qualtrics.SurveyEngine.addOnload(function() {
         data_element.appendChild(text); 
         row_element.appendChild(data_element);
       }
-    
+
       table_element.appendChild(row_element);   
     }
     
@@ -53,3 +87,4 @@ Qualtrics.SurveyEngine.addOnload(function() {
   // Replace the round number with round number you are on
   fill_table(1);
 });
+
